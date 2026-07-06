@@ -91,7 +91,52 @@ namespace DeliveryAPI.Service.Services
                 locationIds,
                 fromDate,
                 toDate,
+         
+                
                 locationTypeIds);
+        }
+
+
+        public List<TransferModeModel> GetTransferModes()
+        {
+            return _repository.GetTransferModes();
+        }
+
+
+        public List<DeliveryOrderTransactionModel> GetDeliveryOrderTransactions()
+        {
+            return _repository.GetDeliveryOrderTransactions();
+        }
+
+        public bool SaveDeliveryOrderTransaction(DeliveryOrderTransactionModel model)
+        {
+            return _repository.SaveDeliveryOrderTransaction(model);
+        }
+
+
+public List<TransferManifestModelresponse> GetManifestOrders()
+        {
+            return _repository.GetManifestOrders();
+        }
+
+
+        public bool SaveTransferManifest(TransferManifestModel model)
+        {
+            return _repository.SaveTransferManifest(model);
+        }
+
+        public List<DeliveryLifecycleModel> GetRoleBasedLifecycles(int roleId)
+        {
+            return _repository.GetRoleBasedLifecycles(roleId);
+        }
+
+        public List<RoleModellifecycle> GetUserRoles(int userId)
+        {
+            return _repository.GetUserRoles(userId);
+        }
+        public string GetNextManifestNo()
+        {
+            return _repository.GetNextManifestNo();
         }
     }
 }

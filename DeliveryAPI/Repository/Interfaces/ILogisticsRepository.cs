@@ -37,7 +37,26 @@ namespace DeliveryAPI.Repository.Interfaces
     DateTime? toDate,
     string? locationTypeIds);
 
+        List<TransferModeModel> GetTransferModes();
+
+
+        List<DeliveryOrderTransactionModel> GetDeliveryOrderTransactions();
+
+        bool SaveDeliveryOrderTransaction(DeliveryOrderTransactionModel model);
+
+        List<TransferManifestModelresponse> GetManifestOrders();
+
+        bool SaveTransferManifest(TransferManifestModel model);
+
+        List<DeliveryLifecycleModel> GetRoleBasedLifecycles(int roleId);
+
+        List<RoleModellifecycle> GetUserRoles(int userId);
+
+        string GetNextManifestNo();
 
     }
+
+
+
 }
 

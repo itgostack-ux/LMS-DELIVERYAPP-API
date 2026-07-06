@@ -690,7 +690,508 @@ WHERE MappingId=@MappingId";
                 commandType: CommandType.StoredProcedure)
                 .ToList();
         }
+
+
+        public List<TransferModeModel> GetTransferModes()
+        {
+            using var db = CreateWinCommonConnection();
+
+            const string query = @"
+
+SELECT
+
+TransferModeId,
+TransferModeCode,
+TransferModeName,
+Description,
+IsActive,
+CreatedBy,
+CreatedDate,
+ModifiedBy,
+ModifiedDate
+
+FROM TransferModeMaster
+
+WHERE IsActive=1
+
+ORDER BY TransferModeName";
+
+            return db.Query<TransferModeModel>(query).ToList();
+        }
+
+
+        public List<DeliveryOrderTransactionModel> GetDeliveryOrderTransactions()
+        {
+            using var db = CreateWinCommonConnection();
+
+            const string query = @"
+
+SELECT *
+
+FROM DeliveryOrderTransaction
+
+WHERE IsActive=1
+
+ORDER BY TransferOrderId DESC";
+
+            return db.Query<DeliveryOrderTransactionModel>(query).ToList();
+        }
+
+
+
+       
+public bool SaveDeliveryOrderTransaction(DeliveryOrderTransactionModel model)
+        {
+            using var db = CreateWinCommonConnection();
+
+            string query;
+
+            // INSERT
+            if (model.TransferOrderId == 0)
+            {
+                query = @"
+INSERT INTO DeliveryOrderTransaction
+(
+    TransitID,
+    DeliveryNoteNo,
+    TransferOutDate,
+    TransferOutTime,
+
+    SourceLocationId,
+    SourceLocationName,
+
+    DestinationLocationId,
+    DestinationLocationName,
+
+    ItemCode,
+    ItemName,
+    IMEI,
+    TransferQty,
+
+    LifecycleId,
+    LifecycleSequenceNo,
+    LifecycleCode,
+    LifecycleName,
+
+    TransferModeId,
+    TransferModeName,
+
+    TransferOutById,
+    TransferOutByName,
+
+    AssignedUserId,
+    AssignedUserName,
+
+    CourierId,
+    CourierName,
+
+    AWBBillNo,
+
+    TransferInTime,
+
+    InwardDoneById,
+    InwardDoneByName,
+
+    TransferDuration,
+
+    Remarks,
+
+    IsActive,
+
+    CreatedBy,
+    CreatedByName,
+    CreatedDate,
+
+    OtherPartyType,
+    VehicleNo,
+    OtherPartyName,
+
+    CompanyId,
+    CompanyName,
+
+    LocationTypeId,
+    LocationTypeName,
+
+    PickupManifestId,
+    PickupManifestNo
+)
+VALUES
+(
+    @TransitID,
+    @DeliveryNoteNo,
+    @TransferOutDate,
+    @TransferOutTime,
+
+    @SourceLocationId,
+    @SourceLocationName,
+
+    @DestinationLocationId,
+    @DestinationLocationName,
+
+    @ItemCode,
+    @ItemName,
+    @IMEI,
+    @TransferQty,
+
+    @LifecycleId,
+    @LifecycleSequenceNo,
+    @LifecycleCode,
+    @LifecycleName,
+
+    @TransferModeId,
+    @TransferModeName,
+
+    @TransferOutById,
+    @TransferOutByName,
+
+    @AssignedUserId,
+    @AssignedUserName,
+
+    @CourierId,
+    @CourierName,
+
+    @AWBBillNo,
+
+    @TransferInTime,
+
+    @InwardDoneById,
+    @InwardDoneByName,
+
+    @TransferDuration,
+
+    @Remarks,
+
+    1,
+
+    @CreatedBy,
+    @CreatedByName,
+    GETDATE(),
+
+    @OtherPartyType,
+    @VehicleNo,
+    @OtherPartyName,
+
+    @CompanyId,
+    @CompanyName,
+
+    @LocationTypeId,
+    @LocationTypeName,
+
+    @PickupManifestId,
+    @PickupManifestNo
+)";
+            }
+            // SOFT DELETE
+            else if (!model.IsActive)
+            {
+                query = @"
+UPDATE DeliveryOrderTransaction
+SET
+    IsActive = 0,
+    ModifiedBy = @ModifiedBy,
+    ModifiedByName = @ModifiedByName,
+    ModifiedDate = GETDATE()
+WHERE TransferOrderId = @TransferOrderId";
+            }
+            // UPDATE
+            else
+            {
+                query = @"
+UPDATE DeliveryOrderTransaction
+SET
+    LifecycleId = @LifecycleId,
+    LifecycleSequenceNo = @LifecycleSequenceNo,
+    LifecycleCode = @LifecycleCode,
+    LifecycleName = @LifecycleName,
+
+    TransferModeId = @TransferModeId,
+    TransferModeName = @TransferModeName,
+
+    TransferOutById = @TransferOutById,
+    TransferOutByName = @TransferOutByName,
+
+    AssignedUserId = @AssignedUserId,
+    AssignedUserName = @AssignedUserName,
+
+    CourierId = @CourierId,
+    CourierName = @CourierName,
+
+    AWBBillNo = @AWBBillNo,
+
+    TransferInTime = @TransferInTime,
+
+    InwardDoneById = @InwardDoneById,
+    InwardDoneByName = @InwardDoneByName,
+
+    TransferDuration = @TransferDuration,
+
+    Remarks = @Remarks,
+
+    OtherPartyType = @OtherPartyType,
+    VehicleNo = @VehicleNo,
+    OtherPartyName = @OtherPartyName,
+
+    CompanyId = @CompanyId,
+    CompanyName = @CompanyName,
+
+    LocationTypeId = @LocationTypeId,
+    LocationTypeName = @LocationTypeName,
+
+    PickupManifestId = @PickupManifestId,
+    PickupManifestNo = @PickupManifestNo,
+
+    ModifiedBy = @ModifiedBy,
+    ModifiedByName = @ModifiedByName,
+    ModifiedDate = GETDATE()
+
+WHERE TransferOrderId = @TransferOrderId";
+            }
+
+            return db.Execute(query, model) > 0;
+        }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+public List<TransferManifestModelresponse> GetManifestOrders()
+        {
+            using var db = CreateWinCommonConnection();
+
+            const string query = @"
+
+SELECT
+
+    TM.ManifestId,
+    TM.ManifestNo,
+    TM.TransferOrderId,
+    TM.AssignedUserId,
+    TM.AssignedUserName,
+    TM.ReceiverUserId,
+    TM.ReceiverUserName,
+    TM.OTP,
+    TM.LifecycleId,
+    TM.LifecycleSequenceNo,
+    TM.LifecycleCode,
+    TM.LifecycleName,
+    TM.ManifestDate,
+    TM.Status,
+
+    DOT.TransitID,
+    DOT.DeliveryNoteNo,
+    DOT.TransferOutDate,
+    DOT.TransferOutTime,
+    DOT.SourceLocationId,
+    DOT.SourceLocationName,
+    DOT.DestinationLocationId,
+    DOT.DestinationLocationName,
+    DOT.ItemCode,
+    DOT.ItemName,
+    DOT.IMEI,
+    DOT.TransferQty,
+    DOT.TransferModeId,
+    DOT.TransferModeName,
+    DOT.CourierId,
+    DOT.CourierName,
+    DOT.AWBBillNo,
+    DOT.TransferInTime,
+    DOT.InwardDoneById,
+    DOT.InwardDoneByName,
+    DOT.TransferDuration,
+    DOT.Remarks,
+    DOT.VehicleNo,
+    DOT.OtherPartyName,
+    DOT.CompanyId,
+    DOT.CompanyName,
+    DOT.LocationTypeId,
+    DOT.LocationTypeName
+
+FROM TransferManifest TM
+INNER JOIN DeliveryOrderTransaction DOT
+    ON TM.TransferOrderId = DOT.TransferOrderId
+
+ORDER BY TM.ManifestId DESC, TM.TransferOrderId";
+
+            return db.Query<TransferManifestModelresponse>(query).ToList();
+        }
+
+
+        public bool SaveTransferManifest(TransferManifestModel model)
+        {
+            using var db = CreateWinCommonConnection();
+
+            string query;
+
+            // INSERT
+            if (model.ManifestId == 0)
+            {
+                query = @"
+INSERT INTO TransferManifest
+(
+    ManifestNo,
+    TransferOrderId,
+    AssignedUserId,
+    AssignedUserName,
+    ReceiverUserId,
+    ReceiverUserName,
+    OTP,
+    LifecycleId,
+    LifecycleSequenceNo,
+    LifecycleCode,
+    LifecycleName,
+    ManifestDate,
+    Status
+)
+VALUES
+(
+    @ManifestNo,
+    @TransferOrderId,
+    @AssignedUserId,
+    @AssignedUserName,
+    @ReceiverUserId,
+    @ReceiverUserName,
+    @OTP,
+    @LifecycleId,
+    @LifecycleSequenceNo,
+    @LifecycleCode,
+    @LifecycleName,
+    GETDATE(),
+    @Status
+)";
+            }
+            // UPDATE
+            else
+            {
+                query = @"
+UPDATE TransferManifest
+SET
+    AssignedUserId = @AssignedUserId,
+    AssignedUserName = @AssignedUserName,
+    ReceiverUserId = @ReceiverUserId,
+    ReceiverUserName = @ReceiverUserName,
+    OTP = @OTP,
+    LifecycleId = @LifecycleId,
+    LifecycleSequenceNo = @LifecycleSequenceNo,
+    LifecycleCode = @LifecycleCode,
+    LifecycleName = @LifecycleName,
+    ManifestDate = @ManifestDate,
+    Status = @Status
+WHERE ManifestNo = @ManifestNo";
+            }
+
+            return db.Execute(query, model) > 0;
+        }
+
+        public List<DeliveryLifecycleModel> GetRoleBasedLifecycles(int roleId)
+        {
+            using var db = CreateWinCommonConnection();
+
+            const string query = @"
+
+SELECT
+    DLM.LifecycleId,
+    DLM.SequenceNo,
+    DLM.StatusCode,
+    DLM.StatusName,
+    DLM.NextStatusCode,
+    DLM.ColorCode ,
+    DLM.Description,
+    DLM.IsActive,
+    DLM.CreatedBy,
+    DLM.CreatedDate,
+    DLM.ModifiedBy,
+    DLM.ModifiedDate
+
+FROM RoleLifecycleMapping RLM
+
+INNER JOIN DeliveryLifecycleMaster DLM
+    ON RLM.LifecycleId = DLM.LifecycleId
+
+WHERE
+    RLM.RoleId = @RoleId
+    AND RLM.IsActive = 1
+    AND DLM.IsActive = 1
+    AND RLM.CanView = 1
+
+ORDER BY DLM.SequenceNo";
+
+            return db.Query<DeliveryLifecycleModel>(
+                query,
+                new { RoleId = roleId }
+            ).ToList();
+        }
+        public List<RoleModellifecycle> GetUserRoles(int userId)
+        {
+            using var db = CreateWinCommonConnection();
+
+            const string query = @"
+
+SELECT DISTINCT
+    CU.UserId,
+    CU.CompanyId,
+    R.RoleID,
+    R.RoleName
+
+FROM CompanyUserLifecycleAccess CU
+
+INNER JOIN Roles R
+    ON CU.RoleId = R.RoleID
+
+WHERE
+    CU.UserId = @UserId
+    AND CU.IsActive = 1
+    AND R.IsActive = 1
+
+ORDER BY R.RoleName";
+
+            return db.Query<RoleModellifecycle>(
+                query,
+                new { UserId = userId }
+            ).ToList();
+        }
+
+        public string GetNextManifestNo()
+        {
+            using var db = CreateWinCommonConnection();
+
+            const string query = @"
+SELECT
+    'MAN-' +
+    FORMAT(GETDATE(),'ddMMyy') +
+    '-' +
+    RIGHT(
+        '000' +
+        CAST(
+            ISNULL(
+                MAX(
+                    CAST(RIGHT(ManifestNo,3) AS INT)
+                ),
+            0
+            ) + 1
+        AS VARCHAR(3)),
+    3)
+FROM TransferManifest
+WHERE ManifestNo IS NOT NULL
+AND LTRIM(RTRIM(ManifestNo)) <> ''
+AND ManifestNo LIKE 'MAN-' + FORMAT(GETDATE(),'ddMMyy') + '-%';
+";
+
+            return db.QueryFirstOrDefault<string>(query)
+                   ?? $"MAN-{DateTime.Now:ddMMyy}-001";
+        }
+
     }
+
+
 
 
     }

@@ -181,5 +181,77 @@ namespace DeliveryAPI.Controllers
 
             return Ok(result);
         }
+
+        [HttpGet("transfer-modes")]
+        public IActionResult GetTransferModes()
+        {
+            var result = _service.GetTransferModes();
+
+            return Ok(result);
+        }
+        [HttpGet("delivery-order-transaction")]
+        public IActionResult GetDeliveryOrderTransactions()
+        {
+            return Ok(_service.GetDeliveryOrderTransactions());
+        }
+
+        [HttpPost("delivery-order-transaction")]
+        public IActionResult SaveDeliveryOrderTransaction(
+      [FromBody] DeliveryOrderTransactionModel model)
+        {
+            Console.WriteLine("Controller Hit");
+
+            return Ok(_service.SaveDeliveryOrderTransaction(model));
+        }
+
+[HttpGet("transfer-manifest")]
+public IActionResult GetManifestOrders()
+        {
+            var result = _service.GetManifestOrders();
+            return Ok(result);
+        }
+
+
+        [HttpPost("transfer-manifest")]
+        public IActionResult SaveTransferManifest([FromBody] TransferManifestModel model)
+        {
+            var result = _service.SaveTransferManifest(model);
+
+            if (result)
+            {
+                return Ok(new
+                {
+                    Success = true,
+                    Message = model.ManifestId == 0
+                        ? "Transfer Manifest created successfully."
+                        : "Transfer Manifest updated successfully."
+                });
+            }
+
+            return BadRequest(new
+            {
+                Success = false,
+                Message = "Failed to save Transfer Manifest."
+            });
+        }
+
+        [HttpGet("role-based-lifecycles/{roleId}")]
+        public IActionResult GetRoleBasedLifecycles(int roleId)
+        {
+            return Ok(_service.GetRoleBasedLifecycles(roleId));
+        }
+        [HttpGet("user-roles/{userId}")]
+        public IActionResult GetUserRoles(int userId)
+        {
+            return Ok(_service.GetUserRoles(userId));
+        }
+
+
+        [HttpGet("next-manifest-no")]
+        public IActionResult GetNextManifestNo()
+        {
+            return Ok(_service.GetNextManifestNo());
+        }
+
     }
 }
