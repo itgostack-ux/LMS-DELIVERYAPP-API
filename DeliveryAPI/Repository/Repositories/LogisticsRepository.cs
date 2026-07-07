@@ -666,13 +666,12 @@ WHERE MappingId=@MappingId";
 
 
 
-
         public List<TransferStockLogDetailModel> GetTransferStockLogDetailDelivery(
-    int companyId,
-    string? locationIds,
-    DateTime? fromDate,
-    DateTime? toDate,
-    string? locationTypeIds)
+            int companyId,
+            string? locationIds,
+            DateTime? fromDate,
+            DateTime? toDate,
+            string? locationTypeIds)
         {
             using var db = CreateBIReportsConnection();
 
@@ -687,11 +686,10 @@ WHERE MappingId=@MappingId";
             return db.Query<TransferStockLogDetailModel>(
                 "RP_TransferStockLog_Detail_delivery",
                 parameters,
-                commandType: CommandType.StoredProcedure)
-                .ToList();
+                commandType: CommandType.StoredProcedure,
+                commandTimeout: 180   // 3 minutes
+            ).ToList();
         }
-
-
         public List<TransferModeModel> GetTransferModes()
         {
             using var db = CreateWinCommonConnection();
