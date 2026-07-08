@@ -3,17 +3,38 @@ using DeliveryAPI.Repository.Repositories;
 using DeliveryAPI.Service.Interfaces;
 using DeliveryAPI.Service.Services;
 using Microsoft.OpenApi.Models;
+using StackExchange.Redis;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllers();
 
+// ===========================
 // Dependency Injection
+// ===========================
 builder.Services.AddScoped<ILogisticsRepository, LogisticsRepository>();
 builder.Services.AddScoped<ILogisticsService, LogisticsService>();
 
+// ===========================
+// Redis Configuration
+// ===========================
+builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
+{
+    var redisConnection = builder.Configuration.GetConnectionString("Redis");
+
+    var options = ConfigurationOptions.Parse(redisConnection!);
+    options.AbortOnConnectFail = false;
+    options.ConnectRetry = 3;
+    options.ConnectTimeout = 5000;
+    options.SyncTimeout = 5000;
+
+    return ConnectionMultiplexer.Connect(options);
+});
+
+// ===========================
 // CORS
+// ===========================
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAngular", policy =>
@@ -29,7 +50,9 @@ builder.Services.AddCors(options =>
     });
 });
 
+// ===========================
 // Swagger
+// ===========================
 builder.Services.AddEndpointsApiExplorer();
 
 builder.Services.AddSwaggerGen(options =>
@@ -44,7 +67,9 @@ builder.Services.AddSwaggerGen(options =>
 
 var app = builder.Build();
 
-// Enable Swagger in ALL environments
+// ===========================
+// Swagger
+// ===========================
 app.UseSwagger();
 
 app.UseSwaggerUI(options =>
@@ -53,7 +78,7 @@ app.UseSwaggerUI(options =>
     options.RoutePrefix = "swagger";
 });
 
-// Keep this commented until HTTPS is configured in IIS
+// Uncomment if HTTPS is configured
 // app.UseHttpsRedirection();
 
 app.UseRouting();

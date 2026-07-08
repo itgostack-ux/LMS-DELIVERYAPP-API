@@ -3,6 +3,8 @@ using DeliveryAPI.Models.Response;
 using DeliveryAPI.Repository.Interfaces;
 using Microsoft.Data.SqlClient;
 using System.Data;
+using StackExchange.Redis;
+using System.Text.Json;
 
 namespace DeliveryAPI.Repository.Repositories
 {
@@ -11,8 +13,12 @@ namespace DeliveryAPI.Repository.Repositories
         private readonly string _winCommonConnection;
         private readonly string _winPosConnection;
         private readonly string _biReportsConnection;
-        public LogisticsRepository(IConfiguration configuration)
+        private readonly IConnectionMultiplexer _redis;
+
+        public LogisticsRepository(IConfiguration configuration, IConnectionMultiplexer redis)
         {
+            _redis = redis;
+
             _winCommonConnection = configuration.GetConnectionString("DefaultConnection")!;
             _winPosConnection = configuration.GetConnectionString("WinPosConnection")!;
 
@@ -667,12 +673,24 @@ WHERE MappingId=@MappingId";
 
 
         public List<TransferStockLogDetailModel> GetTransferStockLogDetailDelivery(
-            int companyId,
-            string? locationIds,
-            DateTime? fromDate,
-            DateTime? toDate,
-            string? locationTypeIds)
+      int companyId,
+      string? locationIds,
+      DateTime? fromDate,
+      DateTime? toDate,
+      string? locationTypeIds)
         {
+            var cache = _redis.GetDatabase();
+
+            string cacheKey =
+                $"TransferStock:{companyId}:{locationIds}:{fromDate:yyyyMMdd}:{toDate:yyyyMMdd}:{locationTypeIds}";
+
+            var cached = cache.StringGet(cacheKey);
+
+            if (cached.HasValue)
+            {
+                return JsonSerializer.Deserialize<List<TransferStockLogDetailModel>>(cached!)!;
+            }
+
             using var db = CreateBIReportsConnection();
 
             var parameters = new DynamicParameters();
@@ -683,12 +701,19 @@ WHERE MappingId=@MappingId";
             parameters.Add("@ToDate", toDate);
             parameters.Add("@LocationTypeId", locationTypeIds);
 
-            return db.Query<TransferStockLogDetailModel>(
+            var result = db.Query<TransferStockLogDetailModel>(
                 "RP_TransferStockLog_Detail_delivery",
                 parameters,
                 commandType: CommandType.StoredProcedure,
-                commandTimeout: 180   // 3 minutes
+                commandTimeout: 180
             ).ToList();
+
+            cache.StringSet(
+                cacheKey,
+                JsonSerializer.Serialize(result),
+                TimeSpan.FromMinutes(10));
+
+            return result;
         }
         public List<TransferModeModel> GetTransferModes()
         {
