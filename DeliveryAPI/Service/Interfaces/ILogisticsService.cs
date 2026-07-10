@@ -29,6 +29,8 @@ namespace DeliveryAPI.Service.Interfaces
 
         List<RoleLifecycleMappingViewModel> GetRoleLifecycleMappings();
 
+        List<DeliveryOrderTimelineModel> GetDeliveryOrderTimeline();
+
         string SaveRoleLifecycleMapping(RoleLifecycleMappingModel model);
 
         List<TransferStockLogDetailModel> GetTransferStockLogDetailDelivery(

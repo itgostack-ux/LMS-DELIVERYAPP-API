@@ -39,7 +39,7 @@ namespace DeliveryAPI.Repository.Interfaces
 
         List<TransferModeModel> GetTransferModes();
 
-
+        List<DeliveryOrderTimelineModel> GetDeliveryOrderTimeline();
         List<DeliveryOrderTransactionModel> GetDeliveryOrderTransactions();
 
         bool SaveDeliveryOrderTransaction(DeliveryOrderTransactionModel model);

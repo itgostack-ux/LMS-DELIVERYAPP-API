@@ -1,5 +1,6 @@
 ﻿using DeliveryAPI.Models.Response;
 using DeliveryAPI.Service.Interfaces;
+using DeliveryAPI.Service.Services;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DeliveryAPI.Controllers
@@ -245,7 +246,12 @@ public IActionResult GetManifestOrders()
         {
             return Ok(_service.GetUserRoles(userId));
         }
-
+        [HttpGet("delivery-order-timeline")]
+        public IActionResult GetDeliveryOrderTimeline()
+        {
+            var result = _service.GetDeliveryOrderTimeline();
+            return Ok(result);
+        }
 
         [HttpGet("next-manifest-no")]
         public IActionResult GetNextManifestNo()

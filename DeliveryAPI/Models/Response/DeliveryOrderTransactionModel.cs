@@ -76,5 +76,18 @@
 
         public int LocationTypeId { get; set; }
         public string? LocationTypeName { get; set; }
+
+        public int? SourceLocationTypeId { get; set; }
+        public string? SourceLocationTypeName { get; set; }
+
+        public int? DestinationLocationTypeId { get; set; }
+        public string? DestinationLocationTypeName { get; set; }
+        public int? AssignedById { get; set; }
+        public string? AssignedByName { get; set; }
+        public DateTime? AssignedDate { get; set; }
+
+
+
+
     }
 }

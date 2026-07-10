@@ -97,6 +97,12 @@ namespace DeliveryAPI.Service.Services
         }
 
 
+
+        public List<DeliveryOrderTimelineModel> GetDeliveryOrderTimeline()
+        {
+            return _repository.GetDeliveryOrderTimeline();
+        }
+
         public List<TransferModeModel> GetTransferModes()
         {
             return _repository.GetTransferModes();
