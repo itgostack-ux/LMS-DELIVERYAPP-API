@@ -54,6 +54,10 @@ namespace DeliveryAPI.Repository.Interfaces
 
         string GetNextManifestNo();
 
+
+        List<UserCompanyLocationModel> GetUserCompanyLocations(int userId);
+
+        List<UserModel> GetReceiverUsers(int companyId, int locationId);
     }
 
 

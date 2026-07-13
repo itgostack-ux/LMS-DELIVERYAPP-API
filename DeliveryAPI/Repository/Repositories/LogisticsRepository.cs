@@ -1427,43 +1427,6 @@ GETDATE()
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
         public List<DeliveryLifecycleModel> GetRoleBasedLifecycles(int roleId)
         {
             using var db = CreateWinCommonConnection();
@@ -1562,6 +1525,86 @@ AND ManifestNo LIKE 'MAN-' + FORMAT(GETDATE(),'ddMMyy') + '-%';
                    ?? $"MAN-{DateTime.Now:ddMMyy}-001";
         }
 
+
+        public List<UserCompanyLocationModel> GetUserCompanyLocations(int userId)
+        {
+            using var db = CreateWinCommonConnection();
+
+            const string query = @"
+SELECT
+    UCL.UserId,
+    UCL.CompId,
+    CM.CompName AS CompanyName,
+    UCL.LocId,
+    LM.LocDesc AS LocationName,
+    UCL.AllowAccess
+FROM UserCompLink UCL
+INNER JOIN CompanyMaster CM
+    ON UCL.CompId = CM.CompId
+INNER JOIN LocationMaster LM
+    ON UCL.LocId = LM.LocId
+WHERE
+    UCL.UserId = @UserId
+    AND UCL.AllowAccess = 'Y'
+    AND CM.CompActive = 'Y'
+ORDER BY
+    CM.CompName,
+    LM.LocDesc;";
+
+            return db.Query<UserCompanyLocationModel>(
+                query,
+                new { UserId = userId }
+            ).ToList();
+        }
+
+        public List<UserModel> GetReceiverUsers(int companyId, int locationId)
+        {
+            using var db = CreateWinCommonConnection();
+
+            const string query = @"
+
+SELECT DISTINCT
+
+    UM.UserId,
+    UM.FullName,
+    UM.LoginName,
+    UM.EmailId,
+    UM.MobileNo
+
+FROM CompanyUserLifecycleAccess CULA
+
+INNER JOIN UserCompLink UCL
+    ON CULA.UserId = UCL.UserId
+    AND CULA.CompanyId = UCL.CompId
+
+INNER JOIN UserMast UM
+    ON CULA.UserId = UM.UserId
+
+INNER JOIN Roles R
+    ON CULA.RoleId = R.RoleID
+
+WHERE
+
+    CULA.CompanyId = @CompanyId
+    AND UCL.LocId = @LocationId
+
+    AND CULA.IsActive = 1
+    AND UCL.AllowAccess = 'Y'
+
+    AND UM.StActive = 'Y'
+    AND UM.Deleted = 'N'
+
+    AND R.IsActive = 1
+    AND R.RoleName IN ('Store Manager', 'Store Executive')
+
+ORDER BY UM.FullName;";
+
+            return db.Query<UserModel>(query, new
+            {
+                CompanyId = companyId,
+                LocationId = locationId
+            }).ToList();
+        }
     }
 
 

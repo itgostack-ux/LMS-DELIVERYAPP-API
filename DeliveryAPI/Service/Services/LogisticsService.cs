@@ -1,5 +1,6 @@
 using DeliveryAPI.Models.Response;
 using DeliveryAPI.Repository.Interfaces;
+using DeliveryAPI.Repository.Repositories;
 using DeliveryAPI.Service.Interfaces;
 
 namespace DeliveryAPI.Service.Services
@@ -143,6 +144,16 @@ public List<TransferManifestModelresponse> GetManifestOrders()
         public string GetNextManifestNo()
         {
             return _repository.GetNextManifestNo();
+        }
+
+        public List<UserCompanyLocationModel> GetUserCompanyLocations(int userId)
+        {
+            return _repository.GetUserCompanyLocations(userId);
+        }
+
+        public List<UserModel> GetReceiverUsers(int companyId, int locationId)
+        {
+            return _repository.GetReceiverUsers(companyId, locationId);
         }
     }
 }

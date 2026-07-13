@@ -53,7 +53,9 @@ namespace DeliveryAPI.Service.Interfaces
         List<RoleModellifecycle> GetUserRoles(int userId);
 
         string GetNextManifestNo();
+        List<UserCompanyLocationModel> GetUserCompanyLocations(int userId);
 
+        List<UserModel> GetReceiverUsers(int companyId, int locationId);
     }
 
 

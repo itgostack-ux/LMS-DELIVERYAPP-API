@@ -259,5 +259,37 @@ public IActionResult GetManifestOrders()
             return Ok(_service.GetNextManifestNo());
         }
 
+
+        [HttpGet("user-company-locations/{userId}")]
+        public IActionResult GetUserCompanyLocations(int userId)
+        {
+            try
+            {
+                var result = _service.GetUserCompanyLocations(userId);
+
+                return Ok(new
+                {
+                    success = true,
+                    data = result
+                });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new
+                {
+                    success = false,
+                    message = ex.Message
+                });
+            }
+
+
+        }
+
+        [HttpGet("receiver-users")]
+        public IActionResult GetReceiverUsers(int companyId, int locationId)
+        {
+            var result = _service.GetReceiverUsers(companyId, locationId);
+            return Ok(result);
+        }
     }
 }
