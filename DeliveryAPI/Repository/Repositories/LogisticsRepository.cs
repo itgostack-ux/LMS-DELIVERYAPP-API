@@ -1595,7 +1595,7 @@ WHERE
     AND UM.Deleted = 'N'
 
     AND R.IsActive = 1
-    AND R.RoleName IN ('Store Manager', 'Store Executive')
+    AND R.RoleName IN ('Store Manager','Operations Executive')
 
 ORDER BY UM.FullName;";
 
